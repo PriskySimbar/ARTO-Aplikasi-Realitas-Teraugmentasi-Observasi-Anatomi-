@@ -2,6 +2,8 @@
 
 ## 1. Deskripsi Singkat Aplikasi
 **ARTO** adalah platform laboratorium anatomi digital berbasis web yang dirancang inklusif untuk mahasiswa kedokteran di Indonesia. Aplikasi ini mengintegrasikan visualisasi anatomi 3D interaktif, teknologi *Augmented Reality* (AR) melalui protokol WebXR, dan Kecerdasan Buatan. ARTO hadir sebagai solusi inovatif untuk mengatasi tantangan kelangkaan kadaver, risiko paparan formalin, serta kesenjangan aksesibilitas fasilitas laboratorium medis berkualitas, khususnya di daerah tertinggal, terdepan, dan terluar (3T).
+Link Demo Aplikasi:
+https://arto-ten.vercel.app/
 
 ## 2. Fitur Utama
 * 🌟 **Atlas3D (Eksplorasi 3D Interaktif):** Viewport 3D untuk memvisualisasikan sistem kerangka dan organ manusia secara spasial dan mendetail yang bisa diputar dan diperbesar.
