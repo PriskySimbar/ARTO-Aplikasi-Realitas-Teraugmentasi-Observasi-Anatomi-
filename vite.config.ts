@@ -17,7 +17,6 @@ export default defineConfig(({mode}) => {
       sourcemap: false,
       chunkSizeWarningLimit: 3000,
       rollupOptions: {
-        external: ['react-is'],
         output: {
           manualChunks: undefined
         }
