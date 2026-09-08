@@ -1,0 +1,109 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["student", "lecturer"] },
+        "overallScore": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Module": {
+      "title": "Anatomy Module",
+      "description": "Represents a course module (e.g., Skeletal System)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "modelUrl": { "type": "string" },
+        "category": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["Standard", "Clinical", "Surgical"] }
+      },
+      "required": ["id", "name", "modelUrl"]
+    },
+    "Quiz": {
+      "title": "Quiz",
+      "description": "A generated or teacher-created quiz",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "moduleId": { "type": "string" },
+        "title": { "type": "string" },
+        "questions": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "UserModuleProgress": {
+      "title": "User Module Progress",
+      "description": "Tracks a user's progress in a specific module",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "moduleId": { "type": "string" },
+        "completion": { "type": "number" },
+        "status": { "type": "string", "enum": ["In Progress", "Completed", "Locked", "Review"] },
+        "lastAccessed": { "type": "string", "format": "date-time" }
+      }
+    },
+    "UserQuizResult": {
+      "title": "User Quiz Result",
+      "description": "Stores quiz scores for students",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "quizId": { "type": "string" },
+        "moduleId": { "type": "string" },
+        "score": { "type": "number" },
+        "total": { "type": "number" },
+        "completedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "MemoryCard": {
+      "title": "Memory Card",
+      "description": "Anki-style spaced repetition cards",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "moduleId": { "type": "string" },
+        "front": { "type": "string" },
+        "back": { "type": "string" },
+        "nextReview": { "type": "string", "format": "date-time" },
+        "interval": { "type": "number" }
+      }
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "History of AI tutor conversations",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "moduleId": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "model"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "Student profile data" },
+    "/modules/{moduleId}": { "schema": "Module", "description": "Course modules" },
+    "/quizzes/{quizId}": { "schema": "Quiz", "description": "Quizzes for modules" },
+    "/user_module_progress/{progressId}": { "schema": "UserModuleProgress", "description": "Student progress tracking" },
+    "/user_quiz_results/{resultId}": { "schema": "UserQuizResult", "description": "Student exam scores" },
+    "/memory_cards/{cardId}": { "schema": "MemoryCard", "description": "Flashcards for study" },
+    "/chats/{chatId}": { "schema": "ChatMessage", "description": "AI Tutor chat logs" }
+  }
+}

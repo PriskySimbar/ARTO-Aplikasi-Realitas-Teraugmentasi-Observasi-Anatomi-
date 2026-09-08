@@ -1,0 +1,6 @@
+{
+  "name": "ARTO 3D & AR Medical Education",
+  "description": "A web-based medical education platform with 3D/AR visualization, AI-driven radiology analysis, adaptive learning, and academic management.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["3D Visualization", "Augmented Reality", "AI Tutoring", "Quiz Generation", "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

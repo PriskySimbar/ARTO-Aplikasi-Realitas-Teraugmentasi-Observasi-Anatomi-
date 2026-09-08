@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isLecturer() {
+      return isSignedIn() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'lecturer';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isLecturer();
+      allow list: if isLecturer();
+      allow create, update: if isOwner(userId) && 
+        request.resource.data.keys().hasAll(['uid', 'email']) &&
+        request.resource.data.uid == request.auth.uid;
+    }
+
+    // Modules (Read-only for all signed-in users)
+    match /modules/{moduleId} {
+      allow read: if isSignedIn();
+    }
+
+    // Quizzes
+    match /quizzes/{quizId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isLecturer();
+    }
+
+    // Progress Tracking
+    match /user_module_progress/{progressId} {
+      allow read: if isSignedIn() && (isOwner(resource.data.userId) || isLecturer());
+      allow write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource != null && resource.data.userId == request.auth.uid)
+      );
+    }
+
+    // Quiz Results
+    match /user_quiz_results/{resultId} {
+      allow read: if isSignedIn() && (
+        (resource == null) || // For listing queries, let the query enforce ownership if not lecturer
+        (resource.data.userId == request.auth.uid) || 
+        isLecturer()
+      );
+      allow list: if isSignedIn() && (
+        isLecturer() || 
+        (resource.data.userId == request.auth.uid)
+      );
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isOwner(resource.data.userId) || isLecturer();
+    }
+
+    // Memory Cards (Flashcards)
+    match /memory_cards/{cardId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource != null && resource.data.userId == request.auth.uid)
+      );
+    }
+
+    // Chat logs
+    match /chats/{chatId} {
+      allow read, write: if isSignedIn() && (
+        (request.method == 'create' && request.resource.data.userId == request.auth.uid) ||
+        (resource != null && resource.data.userId == request.auth.uid)
+      );
+    }
+  }
+}
