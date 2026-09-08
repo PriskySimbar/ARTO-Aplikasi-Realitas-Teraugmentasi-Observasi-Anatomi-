@@ -31,40 +31,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-      if (authUser) {
-        const userDoc = doc(db, 'users', authUser.uid);
-        const snap = await getDoc(userDoc);
-        
-        let data: UserData;
-        if (!snap.exists()) {
-          // Identify lecturer by email (example email from metadata)
-          const isLecturer = authUser.email === 'creativemen72@gmail.com';
-          data = {
-            uid: authUser.uid,
-            email: authUser.email,
-            displayName: authUser.displayName,
-            photoURL: authUser.photoURL,
-            role: isLecturer ? 'lecturer' : 'student',
-            overallScore: 0,
-            createdAt: new Date().toISOString(),
-          };
-          await setDoc(userDoc, data);
-        } else {
-          data = snap.data() as UserData;
-          // Force fix for role if missing or if lecturer role needs correction
-          const isLecturer = authUser.email === 'creativemen72@gmail.com';
-          if (!data.role || (isLecturer && data.role !== 'lecturer')) {
-            const assignedRole = isLecturer ? 'lecturer' : 'student';
-            data.role = assignedRole;
-            await setDoc(userDoc, { role: assignedRole }, { merge: true });
+      try {
+        if (authUser) {
+          const userDoc = doc(db, 'users', authUser.uid);
+          const snap = await getDoc(userDoc);
+          
+          let data: UserData;
+          if (!snap.exists()) {
+            // Identify lecturer by email (example email from metadata)
+            const isLecturer = authUser.email === 'creativemen72@gmail.com';
+            data = {
+              uid: authUser.uid,
+              email: authUser.email,
+              displayName: authUser.displayName,
+              photoURL: authUser.photoURL,
+              role: isLecturer ? 'lecturer' : 'student',
+              overallScore: 0,
+              createdAt: new Date().toISOString(),
+            };
+            await setDoc(userDoc, data);
+          } else {
+            data = snap.data() as UserData;
+            // Force fix for role if missing or if lecturer role needs correction
+            const isLecturer = authUser.email === 'creativemen72@gmail.com';
+            if (!data.role || (isLecturer && data.role !== 'lecturer')) {
+              const assignedRole = isLecturer ? 'lecturer' : 'student';
+              data.role = assignedRole;
+              await setDoc(userDoc, { role: assignedRole }, { merge: true });
+            }
           }
+          setUserData(data);
+        } else {
+          setUserData(null);
         }
-        setUserData(data);
-      } else {
-        setUserData(null);
+        setUser(authUser);
+      } catch (error) {
+        console.error("Error fetching user data from Firestore:", error);
+        // Even if Firestore fails, we at least set the auth user so the app doesn't crash completely
+        setUser(authUser);
+      } finally {
+        setLoading(false);
       }
-      setUser(authUser);
-      setLoading(false);
     });
 
     return () => unsubscribe();
